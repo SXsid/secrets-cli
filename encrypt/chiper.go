@@ -4,9 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
 	"io"
-	"os"
 )
 
 type EncryptedRecord struct {
@@ -14,13 +12,10 @@ type EncryptedRecord struct {
 	Nonce       string
 }
 
-func Encrypt(data string) (*EncryptedRecord, error) {
-	secret_key := derive_key(os.Getenv("secret_key"))
-	if len(secret_key) == 0 {
-		return nil, errors.New("failed to load secrete key")
-	}
+func Encrypt(data, secret_key string) (*EncryptedRecord, error) {
+	chiper_key := derive_key(secret_key)
 	plain_text := []byte(data)
-	block, err := aes.NewCipher(secret_key)
+	block, err := aes.NewCipher(chiper_key)
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +36,9 @@ func Encrypt(data string) (*EncryptedRecord, error) {
 	}, nil
 }
 
-func Decrypt(data EncryptedRecord) (string, error) {
-	secret_key := derive_key(os.Getenv("secret_key"))
-	if len(secret_key) == 0 {
-		return "", errors.New("failed to load secrete key")
-	}
-	block, err := aes.NewCipher(secret_key)
+func Decrypt(data EncryptedRecord, secret_key string) (string, error) {
+	chiper_key := derive_key(secret_key)
+	block, err := aes.NewCipher(chiper_key)
 	if err != nil {
 		return "", err
 	}

@@ -19,5 +19,8 @@ func decode_into_base64(data string) []byte {
 
 func derive_key(secret_key string) []byte {
 	hash := sha256.Sum256([]byte(secret_key))
+	if len(hash) == 0 {
+		panic("Invlaid secret_key")
+	}
 	return hash[:]
 }

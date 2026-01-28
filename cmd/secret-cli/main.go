@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
-	"github.com/SXsid/secrets-cli/encrypt"
+	"github.com/SXsid/secrets-cli/valut"
 	"github.com/joho/godotenv"
 )
 
@@ -13,14 +14,17 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	res, err := encrypt.Encrypt("this is the data")
-	if err != nil {
-		panic(err)
+	vault := valut.NewValut(os.Getenv("secret_key"))
+	if err := vault.Set("key1", "value1"); err != nil {
+		log.Fatal(err)
 	}
-	fmt.Printf("text=>%s\n nonce=>%s\n", res.CihpherText, res.Nonce)
-	orignalString, err := encrypt.Decrypt(*res)
-	if err != nil {
-		panic(err)
+
+	if err := vault.Set("key1", "value2"); err != nil {
+		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", orignalString)
+	res, err := vault.Get("key1")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s\n", res)
 }
