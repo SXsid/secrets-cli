@@ -2,23 +2,31 @@ package valut
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/SXsid/secrets-cli/encrypt"
 )
 
 type Vault struct {
-	key  string
-	data map[string]encrypt.EncryptedRecord
+	key          string
+	file_path    string
+	data         map[string]encrypt.EncryptedRecord
+	file_pointer *os.File
 }
 
-func NewValut(key string) *Vault {
-	if key == "" {
+func NewValut(key, file_path string) (*Vault, error) {
+	if key == "" || file_path == "" {
 		panic("env is not set")
 	}
-	return &Vault{
-		key:  key,
-		data: map[string]encrypt.EncryptedRecord{},
+	vault := &Vault{
+		key:       key,
+		file_path: file_path,
+		data:      map[string]encrypt.EncryptedRecord{},
 	}
+	if err := vault.loadKeyValues(); err != nil {
+		return nil, err
+	}
+	return vault, nil
 }
 
 func (v *Vault) Set(key, value string) error {
@@ -27,6 +35,9 @@ func (v *Vault) Set(key, value string) error {
 		return nil
 	}
 	v.data[key] = *encrypted_value
+	if err = v.dumpKeyValues(); err != nil {
+		return err
+	}
 	return nil
 }
 

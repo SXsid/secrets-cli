@@ -14,17 +14,14 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	vault := valut.NewValut(os.Getenv("secret_key"))
-	if err := vault.Set("key1", "value1"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := vault.Set("key1", "value2"); err != nil {
-		log.Fatal(err)
-	}
-	res, err := vault.Get("key1")
+	vault, err := valut.NewValut(os.Getenv("secret_key"), os.Getenv("file_path"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", res)
+	defer vault.Close()
+	data, err := vault.Get("key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s\n", data)
 }
