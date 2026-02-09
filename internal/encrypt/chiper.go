@@ -12,10 +12,9 @@ type EncryptedRecord struct {
 	Nonce       string
 }
 
-func Encrypt(data, secret_key string) (*EncryptedRecord, error) {
-	chiper_key := derive_key(secret_key)
+func Encrypt(data string, secretKey []byte) (*EncryptedRecord, error) {
 	plain_text := []byte(data)
-	block, err := aes.NewCipher(chiper_key)
+	block, err := aes.NewCipher(secretKey)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +35,8 @@ func Encrypt(data, secret_key string) (*EncryptedRecord, error) {
 	}, nil
 }
 
-func Decrypt(data EncryptedRecord, secret_key string) (string, error) {
-	chiper_key := derive_key(secret_key)
-	block, err := aes.NewCipher(chiper_key)
+func Decrypt(data EncryptedRecord, secretKey []byte) (string, error) {
+	block, err := aes.NewCipher(secretKey)
 	if err != nil {
 		return "", err
 	}

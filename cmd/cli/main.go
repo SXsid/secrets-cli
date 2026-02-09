@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/SXsid/secrets-cli/valut"
+	"github.com/SXsid/secrets-cli/internal/vault"
 	"github.com/joho/godotenv"
 )
 
@@ -14,12 +14,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	vault, err := valut.NewValut(os.Getenv("secret_key"), os.Getenv("file_path"))
+	vault, err := vault.NewValut(os.Getenv("secret_key"), os.Getenv("file_path"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer vault.Close()
-	data, err := vault.Get("key")
+	data, err := vault.Get("sid-aws")
 	if err != nil {
 		log.Fatal(err)
 	}
