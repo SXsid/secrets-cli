@@ -4,14 +4,26 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 
 	cli "github.com/SXsid/secrets-cli/internal/commandLine"
 )
 
+func printASCII() {
+	cmd := exec.Command("figlet", "-f", "ANSIShadow", "vault")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Welcome to VAULT")
+	} else {
+		fmt.Println(string(output))
+	}
+}
+
 func usage() {
-	fmt.Println("vault init -f<file_path> -p<user_password> ")
-	fmt.Println("vault set -k<key> -v <value>")
-	fmt.Println("vault get -k")
+	printASCII()
+	fmt.Println("vault init -f <file_path> -p <user_password>")
+	fmt.Println("vault set -k <key> -v <value>")
+	fmt.Println("vault get -k <key>")
 	fmt.Println("vault ls")
 }
 
