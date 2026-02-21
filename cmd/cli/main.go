@@ -34,28 +34,19 @@ func main() {
 		usage()
 		return
 	}
-
+	cliFlags := cli.CliParser(args)
+	Vaultconfig, err := cli.Verify()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(cliFlags)
 	switch args[1] {
-	case "init":
-		cli.Init()
 	case "get":
-		Vaultconfig, err := cli.Verify()
-		if err != nil {
-			log.Fatal(err)
-		}
-		cli.Get(Vaultconfig)
+		cli.Get(Vaultconfig, cliFlags)
 	case "set":
-		Vaultconfig, err := cli.Verify()
-		if err != nil {
-			log.Fatal(err)
-		}
-		cli.Set(Vaultconfig)
+		cli.Set(Vaultconfig, cliFlags)
 
 	case "ls":
-		Vaultconfig, err := cli.Verify()
-		if err != nil {
-			log.Fatal(err)
-		}
 		cli.List(Vaultconfig)
 	default:
 		usage()

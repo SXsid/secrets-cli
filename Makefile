@@ -8,7 +8,8 @@ run-%:clean-% build-%
 	@echo "Running: $*"
 	$(BIN_DIR)/$*
 build-%:
-	go build -v -o ${BIN_DIR}/$* $(CMD_DIR)/$*/main.go
+	@echo "Bulding :$*"
+	@go build -v -o ${BIN_DIR}/$* $(CMD_DIR)/$*/main.go
 clean-%:
 	rm -rf $(BIN_DIR)/$*
 

@@ -16,8 +16,7 @@ type FileData struct {
 type Vault struct {
 	mu          sync.Mutex
 	key         []byte
-	filePath    string
-	fileData    FileData
+	fileData    map[string]encrypt.EncryptedRecord
 	filePointer *os.File
 }
 
@@ -28,33 +27,18 @@ func valutUsage() {
 	fmt.Println("vault help: to get all avaible command ")
 }
 
-func NewValut(password, filePath string) (*Vault, error) {
-	if password == "" || filePath == "" {
+func NewValut(key []byte) (*Vault, error) {
+	if key == nil {
 		valutUsage()
-		return nil, errors.New("password and file path are required")
+		return nil, errors.New("invalid creds")
 	}
 	Vault := &Vault{
-		filePath: filePath,
-		fileData: FileData{
-			Data: make(map[string]encrypt.EncryptedRecord),
-		},
+		fileData: make(map[string]encrypt.EncryptedRecord),
+		key:      key,
 	}
 	if err := Vault.loadKeyValues(); err != nil {
 		return nil, err
 	}
-	if salt := Vault.fileData.Salt; salt == "" {
-		salt, err := encrypt.Genrate_slat()
-		if err != nil {
-			return nil, err
-		}
-		Vault.fileData.Salt = salt
-
-	}
-	secretKey, err := encrypt.Derive_key(password, Vault.fileData.Salt)
-	if err != nil {
-		return nil, err
-	}
-	Vault.key = secretKey
 	return Vault, nil
 }
 
@@ -65,7 +49,7 @@ func (v *Vault) Set(key, value string) error {
 	if err != nil {
 		return nil
 	}
-	v.fileData.Data[key] = *encrypted_value
+	v.fileData[key] = *encrypted_value
 	if err = v.dumpKeyValues(); err != nil {
 		return err
 	}
@@ -75,7 +59,7 @@ func (v *Vault) Set(key, value string) error {
 func (v *Vault) Get(key string) (string, error) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
-	store_value, ok := v.fileData.Data[key]
+	store_value, ok := v.fileData[key]
 	if !ok {
 		return "", fmt.Errorf("no data for this %s key", key)
 	}
@@ -85,4 +69,12 @@ func (v *Vault) Get(key string) (string, error) {
 	}
 
 	return res, nil
+}
+
+func (v *Vault) List() []string {
+	keys := make([]string, 0, len(v.fileData))
+	for k := range v.fileData {
+		keys = append(keys, k)
+	}
+	return keys
 }
